@@ -1,6 +1,6 @@
 # CompilerGolang
 
-**CompilerGolang** is a simple interpreter written in Go. It supports basic arithmetic operations, variable assignments, functions, arrays, and built-in functions, making it a great resource for understanding the fundamentals of building an interpreter.
+**[CompilerGolang](https://github.com/Lux-27/Interpreter_Golang)** is an extension of the interpreter written in Go.
 
 ## Features
 
