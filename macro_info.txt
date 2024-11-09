@@ -1,0 +1,85 @@
+These macro systems do not work with code as text, but they treat code as data.
+
+In languages with syntactic macros you can do that in the language itself, not just in an outer host language.
+If a language X has a syntactic macro system, you can use language X to work with source code written in X.
+The language becomes self-aware, so to speak, and with macros allows you to inspect and modify itself. Like a surgeon operating on themself.
+
+Elixir’s quote function -> It allows us to stop code from being evaluated - effectively turning code into data:
+
+iex(1)> quote do: 10 + 5
+{:+, [context: Elixir, import: Kernel], [10, 5]}
+
+iex(2)> exp = quote do: 10 + 5
+{:+, [context: Elixir, import: Kernel], [10, 5]}
+iex(3)> elem(exp, 0)
+:+
+iex(4)> elem(exp, 2)
+[10, 5]
+
+We want use quote to build an AST node that represents an infix expression involving three
+integer literals. One of the numbers should be injected into the AST dynamically. It’s bound to a name, my_number, 
+and we only want to refer to it by this name.
+
+iex(6)> my_number = 99
+99
+iex(7)> quote do: 10 + 5 + my_number
+{:+, [context: Elixir, import: Kernel], [{:+, [context: Elixir, import: Kernel], [10, 5]}, {:my_number, [], Elixir}]}
+
+this does not work, as quote prevents any arguments from being evaluated, thus my_number is not converted to 99
+to do that, we need another function called unquote.
+
+iex(8)> quote do: 10 + 5 + unquote(my_number)
+{:+, [context: Elixir, import: Kernel], [{:+, [context: Elixir, import: Kernel], [10, 5]}, 99]}
+
+
+Here is a simple example, a macro that turns infix expressions using a + operator into infix expressions using -, called plus_to_minus:
+
+defmodule MacroExample do
+  defmacro plus_to_minus(expression) do
+    args = elem(expression, 2)
+
+    quote do
+      unquote(Enum.at(args, 0)) - unquote(Enum.at(args, 1))
+    end
+  end
+end
+
+The macro system for Arcadian will be modelled after Elixir, which itself is modelled after a 
+simple define-macro system known from the Lisp and Scheme world.
+
+We’re going to add are the quote and unquote functions.
+$ go run main.go
+Hello mrnugget! This is the Monkey programming language!
+Feel free to type in commands
+>> quote(foobar);
+QUOTE(foobar)
+>> quote(10 + 5);
+QUOTE((10 + 5))
+>> quote(foobar + 10 + 5 + barfoo);
+QUOTE((((foobar + 10) + 5) + barfoo))
+
+quote will take one argument and stop it from being evaluated. It will return an object that represents the quoted code.
+The matching unquote function will allow us to circumvent quote:
+>> quote(8 + unquote(4 + 4));
+QUOTE((8 + 8))
+
+unquote will only be usable inside the expression that’s passed to quote. But in there it will also be possible to unquote source code that’s been quoted before:
+
+>> let quotedInfixExpression = quote(4 + 4);
+>> quotedInfixExpression;
+QUOTE((4 + 4))
+>> quote(unquote(4 + 4) + unquote(quotedInfixExpression));
+QUOTE((8 + (4 + 4)))
+
+We’re going to need that when we put in the final piece of the macro system: the macro literals. They allow us to define macros:
+
+>> let reverse = macro(a, b) { quote(unquote(b) - unquote(a)); };
+>> reverse(2 + 2, 10 - 5);
+1
+
+Macro literals look just like function literals, except that the keyword is not fn but macro.
+Combined with the aforementioned ability to unquote code that’s been quoted before, that allows us to selectively evaluate macro arguments, which are just quoted code:
+
+>> let evalSecondArg = macro(a, b) { quote(unquote(b)) };
+>> evalSecondArg(puts("not printed"), puts("printed"));
+printed

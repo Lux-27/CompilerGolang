@@ -1,0 +1,26 @@
+Other interpreters also traverse the AST, but instead of interpreting the AST itself they first
+convert it to bytecode. Bytecode is another IR of the AST and a really dense one at that. The
+exact format and of which opcodes (the instructions that make up the bytecode) it’s composed
+of varies and depends on the guest and host programming languages. In general though, the
+opcodes are pretty similar to the mnemonics of most assembly languages; it’s a safe bet to
+say that most bytecode definitions contain opcodes for push and pop to do stack operations.
+But bytecode is not native machine code, nor is it assembly language. It can’t and won’t be
+executed by the operating system and the CPU of the machine the interpreter is running on.
+Instead it’s interpreted by a virtual machine, that’s part of the interpreter. Just like VMWare
+and VirtualBox emulate real machines and CPUs, these virtual machines emulate a machine
+that understands this particular bytecode format. This approach can yield great performance
+benefits.
+
+Our interpreter will be a lot like a classic Lisp interpreter. The design we’re going to use is
+heavily inspired by the interpreter presented in “The Structure and Interpretation of Computer
+Programs” (SICP), especially its usage of environments. 
+
+Infix expression supported by Arcadian
+5 + 5;
+5 - 5;
+5 * 5;
+5 / 5;
+5 > 5;
+5 < 5;
+5 == 5;
+5 != 5;
