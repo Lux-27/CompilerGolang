@@ -1,6 +1,6 @@
 # CompilerGolang
 
-**[CompilerGolang](https://github.com/Lux-27/Interpreter_Golang)** is an extension of the interpreter written in Go.
+CompilerGolang is an extension of the **[interpreter written in Go](https://github.com/Lux-27/Interpreter_Golang)**.
 
 ## Features
 
