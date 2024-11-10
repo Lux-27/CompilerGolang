@@ -1,4 +1,4 @@
-# CompilerGolang
+# CompilerGolang - UNDER DEVELOPMENT DON'T USE
 
 CompilerGolang is an extension of the **[interpreter written in Go](https://github.com/Lux-27/Interpreter_Golang)**.
 
